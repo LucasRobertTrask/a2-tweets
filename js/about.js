@@ -22,6 +22,37 @@ function parseTweets(runkeeper_tweets) {
 		month: "long",
 		day: "numeric"
 	});
+	var completedEvents = 0;
+	var liveEvents = 0;
+	var achievements = 0;
+	var miscellaneous = 0;
+	for (i = 0; i < tweet_array.length; i++) {
+		if (tweet_array[i].source == "completed_event") completedEvents++;
+		else if (tweet_array[i].source == "achievement") achievements++;
+		else if (tweet_array[i].source == "live_event") liveEvents++;
+		else miscellaneous++;
+	}
+
+	function setClassText(className, value) {
+		document.querySelectorAll('.' + className).forEach(function (element) {
+			element.innerText = value;
+		});
+	}
+
+	setClassText('completedEvents', completedEvents);
+	setClassText('liveEvents', liveEvents);
+	setClassText('achievements', achievements);
+	setClassText('miscellaneous', miscellaneous);
+
+	var pctComp = math.format((completedEvents / tweet_array.length) * 100, { notation: 'fixed', precision: 2 });
+	var pctLive = math.format((liveEvents / tweet_array.length) * 100, { notation: 'fixed', precision: 2 });
+	var pctAchv = math.format((achievements / tweet_array.length) * 100, { notation: 'fixed', precision: 2 });
+	var pctMisc = math.format((miscellaneous / tweet_array.length) * 100, { notation: 'fixed', precision: 2 });
+
+	setClassText('completedEventsPct', pctComp + '%');
+	setClassText('liveEventsPct', pctLive + '%');
+	setClassText('achievementsPct', pctAchv + '%');
+	setClassText('miscellaneousPct', pctMisc + '%');
 }
 
 //Wait for the DOM to load
