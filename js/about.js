@@ -26,8 +26,12 @@ function parseTweets(runkeeper_tweets) {
 	var liveEvents = 0;
 	var achievements = 0;
 	var miscellaneous = 0;
-	for (i = 0; i < tweet_array.length; i++) {
-		if (tweet_array[i].source == "completed_event") completedEvents++;
+	var written = 0;
+	for (let i = 0; i < tweet_array.length; i++) {
+		if (tweet_array[i].source == "completed_event") {
+			completedEvents++;
+			if (tweet_array[i].written == true) written++;
+		}
 		else if (tweet_array[i].source == "achievement") achievements++;
 		else if (tweet_array[i].source == "live_event") liveEvents++;
 		else miscellaneous++;
@@ -43,16 +47,19 @@ function parseTweets(runkeeper_tweets) {
 	setClassText('liveEvents', liveEvents);
 	setClassText('achievements', achievements);
 	setClassText('miscellaneous', miscellaneous);
+	setClassText('written', written);
 
 	var pctComp = math.format((completedEvents / tweet_array.length) * 100, { notation: 'fixed', precision: 2 });
 	var pctLive = math.format((liveEvents / tweet_array.length) * 100, { notation: 'fixed', precision: 2 });
 	var pctAchv = math.format((achievements / tweet_array.length) * 100, { notation: 'fixed', precision: 2 });
 	var pctMisc = math.format((miscellaneous / tweet_array.length) * 100, { notation: 'fixed', precision: 2 });
+	var pctWrit = math.format((written / completedEvents) * 100, { notation: 'fixed', precision: 2 });
 
 	setClassText('completedEventsPct', pctComp + '%');
 	setClassText('liveEventsPct', pctLive + '%');
 	setClassText('achievementsPct', pctAchv + '%');
 	setClassText('miscellaneousPct', pctMisc + '%');
+	setClassText('writtenPct', pctWrit + '%');
 }
 
 //Wait for the DOM to load
