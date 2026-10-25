@@ -34,20 +34,73 @@ class Tweet {
         return firstCut.substring(startpos, endpos);
     }
 
+    // helper function to get only the auto-generated text from the tweet
+    get generatedText():string {
+        let runkeeperIndex:number = this.text.indexOf("@Runkeeper"); // index with no written text
+        let dashIndex:number = this.text.indexOf(" - "); // index if there is written text
+        let index:number;
+
+        // find out which one to use
+        if (runkeeperIndex != -1 && dashIndex != -1) { index = runkeeperIndex < dashIndex ? runkeeperIndex : dashIndex; }
+        else if (runkeeperIndex == -1 && dashIndex == -1) { index = this.text.length; }
+        else if (runkeeperIndex == -1) { index = dashIndex; }
+        else { index = runkeeperIndex; }
+        return this.text.substring(0, index);
+    }
+
     get activityType():string {
         if (this.source != 'completed_event') {
             return "unknown";
         }
-        //TODO: parse the activity type from the text of the tweet
-        return "";
+
+        // all the categories I could find there are more since others is not empty but its a small amount
+        let information:string = this.generatedText;
+        if (information.includes("nordic")) return "nordic walk";
+        if (information.includes("walk")) return "walk";
+        if (information.includes("ski")) return "ski run";
+        if (information.includes("run")) return "run";
+        if (information.includes("mtn")) return "mtn bike";
+        if (information.includes("bike")) return "bike";
+        if (information.includes("circuit")) return "circuit workout";
+        if (information.includes("elliptical")) return "elliptical workout";
+        if (information.includes("CrossFit")) return "CrossFit workout";
+        if (information.includes("strength")) return "strength workout";
+        if (information.includes("activity")) return "activity";
+        if (information.includes("swim")) return "swim";
+        if (information.includes("pilates")) return "pilates session";
+        if (information.includes("spinning")) return "spinning workout";
+        if (information.includes("hike")) return "hike";
+        if (information.includes("row")) return "row";
+        if (information.includes("chair")) return "chair ride";
+        if (information.includes("skate")) return "skate";
+        if (information.includes("bootcamp")) return "bootcamp";
+        if (information.includes("dance")) return "dance";
+        if (information.includes("MySports")) return "MySports Freestyle";
+        if (information.includes("sports")) return "sports";
+        if (information.includes("yoga")) return "yoga";
+        return "other";
     }
 
     get distance():number {
         if(this.source != 'completed_event') {
             return 0;
         }
-        //TODO: prase the distance from the text of the tweet
-        return 0;
+        let information:string = this.generatedText;
+        let indexBeforeDecimal:number;
+        let km:boolean = false;
+        if (information.includes("mi ")) indexBeforeDecimal = information.indexOf("mi ") - 5; // decimal is always 5 before
+        else if (information.includes("km ")) {indexBeforeDecimal = information.indexOf("km ") - 5; km = true; }
+        else return 0;
+        
+        // find the index where the number starts
+        let startIndex = indexBeforeDecimal;
+        while (!isNaN(parseInt(information.charAt(startIndex)))) {
+            startIndex--;
+        }
+        let distance:number = parseFloat(information.substring(startIndex)); //only parses the first word which
+        if (km) distance *=  0.621371; // convert to miles
+        distance = Math.round(distance * 100) / 100;
+        return distance;
     }
 
     getHTMLTableRow(rowNumber:number):string {
