@@ -26,12 +26,14 @@ function parseTweets(runkeeper_tweets) {
 		// follow the expected format
 		year: "numeric",
 		month: "long",
-		day: "numeric"
+		day: "numeric",
+		weekday: "long"
 	});
 	document.getElementById('lastDate').innerText = tweet_array[0].time.toLocaleDateString("en-US", {
 		year: "numeric",
 		month: "long",
-		day: "numeric"
+		day: "numeric",
+		weekday: "long"
 	});
 
 	// set up the vars

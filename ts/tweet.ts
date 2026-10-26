@@ -11,7 +11,7 @@ class Tweet {
     get source():string {
         //TODO: identify whether the source is a live event, an achievement, a completed event, or miscellaneous.
 
-        if (this.text.includes("completed") || this.text.includes("posted")) return "completed_event";
+        if (this.text.startsWith("Just completed") || this.text.startsWith("Just posted")) return "completed_event";
         if (this.text.startsWith("Achieved")) return "achievement";
         if (this.text.startsWith("Watch")) return "live_event";
 
@@ -20,7 +20,7 @@ class Tweet {
 
     //returns a boolean, whether the text includes any content written by the person tweeting.
     get written():boolean {
-        if (this.text.includes(" - ")) return true;
+        if (this.source == "completed_event" && this.text.includes(" - ")) return true;
         return false;
     }
 
@@ -30,8 +30,9 @@ class Tweet {
         }
         let startpos:number = this.text.indexOf(" - ") + 3;
         let firstCut = this.text.substring(startpos);
-        let endpos:number = firstCut.indexOf(" https:");
-        return firstCut.substring(startpos, endpos);
+        let endpos:number = firstCut.indexOf("https:");
+        if (endpos == -1) endpos = firstCut.length; // just in case there is no link
+        return firstCut.substring(0, endpos).trim();
     }
 
     // helper function to get only the auto-generated text from the tweet
@@ -105,6 +106,24 @@ class Tweet {
 
     getHTMLTableRow(rowNumber:number):string {
         //TODO: return a table row which summarizes the tweet with a clickable link to the RunKeeper activity
-        return "<tr></tr>";
+        if (this.text.includes("https")) {
+            let linkIndex:number = this.text.indexOf("https");
+            let endIndex:number = linkIndex;
+            // find the end of the link
+            while (this.text.charAt(endIndex) != ""){ // escape the loop if the string ends
+                // cover the whitespace edge cases
+                if (this.text.charAt(endIndex) == '\n') break;
+                else if (this.text.charAt(endIndex) == " ") break;
+                else if (this.text.charAt(endIndex) == '\t') break;
+                endIndex++;
+            }
+            // seperate the link
+            let beforeLink:string = this.text.substring(0, linkIndex);
+            let afterLink:string = this.text.substring(endIndex);
+            let link = this.text.substring(linkIndex, endIndex);
+            // stitch it together
+            return `<tr><td>${rowNumber}</td><td>${this.activityType}</td><td>${beforeLink}<a href="${link}">${link}</a>${afterLink}</td></tr>`;
+        }
+        return `<tr><td>${rowNumber}</td><td>${this.activityType}</td><td>${this.text}</td></tr>`; // no link
     }
 }

@@ -149,11 +149,17 @@ function parseTweets(runkeeper_tweets) {
 	let topThree = [["1st", -1], ["2nd", -2], ["3rd", -3]]
 	Object.keys(activityTypes).forEach(function(key) {
 		if (activityTypes[key] > topThree[0][1]) { // most popular
+			topThree[2][0] = topThree[1][0];
+			topThree[2][1] = topThree[1][1];
+			topThree[1][0] = topThree[0][0];
+			topThree[1][1] = topThree[0][1];
 			topThree[0][0] = key;
 			topThree[0][1] = activityTypes[key];
 			return;
 		}
 		else if (activityTypes[key] > topThree[1][1]) { // second most popular
+			topThree[2][0] = topThree[1][0];
+			topThree[2][1] = topThree[1][1];
 			topThree[1][0] = key;
 			topThree[1][1] = activityTypes[key];
 			return;
@@ -194,13 +200,10 @@ function parseTweets(runkeeper_tweets) {
 		distancesPerDaySum[dataPoint.weekday][1]++;
 		}
 	});
-	console.log(distancesPerDaySum)
 	let distancesPerDayMean = {};
 	Object.keys(distancesPerDaySum).forEach(function(key) {
 		distancesPerDayMean[key] = distancesPerDaySum[key][0] / distancesPerDaySum[key][1];
 	});
-	console.log(distancesPerDayMean)
-	console.log(distancesPerDayMean)
 
 	// I wrote all this thikning the text wanted the day not weekend or weekday ...
 	// initialize max and min vars
@@ -232,32 +235,23 @@ document.addEventListener('DOMContentLoaded', function (event) {
 	// store the elements and hide them on page opening
 	let distanceVis = document.getElementById("distanceVis");
 	let distanceVisAggregated = document.getElementById("distanceVisAggregated");
-	distanceVis.style.display = "none";
+	distanceVis.style.display = "block";
 	distanceVisAggregated.style.display = "none";
 
 	
 	const button = document.getElementById("aggregate"); // store the button in a var
-	let graphShowing = false; // for the intial button press
-	let graphState = 0; // represents which graph is showing; could be bool but if there were more in the future this holds better
+	let graphState = 2; // represents which graph is showing; could be bool but if there were more in the future this holds better
 	button.addEventListener("click", function () {
-		if (!graphShowing) { // first time its pressed
-			graphState = 1;
+		if (graphState == 1) { 
+			distanceVis.style.display = "block";
+			distanceVisAggregated.style.display = "none";
+			button.textContent = "Show means";
+			graphState = 2;
+		} else if (graphState == 2) {
 			distanceVisAggregated.style.display = "block";
+			distanceVis.style.display = "none";
 			button.textContent = "Show all activities";
-			graphShowing = true; // always goes to the else branch now
-		} else {
-			// updates the values and the page according the instructions
-			if (graphState == 1) { 
-				distanceVis.style.display = "block";
-				distanceVisAggregated.style.display = "none";
-				button.textContent = "Show means";
-				graphState = 2;
-			} else if (graphState == 2) {
-				distanceVisAggregated.style.display = "block";
-				distanceVis.style.display = "none";
-				button.textContent = "Show all activities";
-				graphState = 1;
-			}
+			graphState = 1;
 		}
-	})
+})
 });
